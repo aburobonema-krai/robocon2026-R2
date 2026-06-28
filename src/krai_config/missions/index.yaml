@@ -1,0 +1,270 @@
+version: 1
+default_mission_id: debug_square
+categories:
+- id: debug
+  name: Debug / Fake Bench Tests
+- id: real_test
+  name: Real Robot Low-Speed Tests
+- id: match
+  name: Match Autonomous Strategies
+- id: mechanism
+  name: Slave B / Mechanism Tests
+- id: calibration
+  name: Calibration and Sensor Checks
+- id: recovery
+  name: Recovery / Safety Motions
+- id: match_box
+  name: Match Box Target Index
+- id: match_weapon
+  name: Match Weapon Target Index
+missions:
+- id: debug_forward_turn
+  name: Debug Forward Turn
+  file: debug/debug_forward_turn.yaml
+  category: debug
+  enabled: true
+  description: Reset, move 50 cm, turn 45 deg, then stop. Good first mission smoke
+    test.
+- id: debug_square
+  name: Debug Square
+  file: debug/debug_square.yaml
+  category: debug
+  enabled: true
+  description: Fake-mode square-style sequence using relative move and turn primitives.
+- id: real_short_test
+  name: Real Robot Short Test
+  file: real_test/real_short_test.yaml
+  category: real_test
+  enabled: true
+  description: 'Very conservative first real robot mission: 20 cm move and 30 deg
+    turn.'
+- id: real_move_20cm
+  name: Real Move 20 cm
+  file: real_test/real_move_20cm.yaml
+  category: real_test
+  enabled: true
+  description: Low-speed straight movement test for real robot mode.
+- id: real_turn_30deg
+  name: Real Turn 30 deg
+  file: real_test/real_turn_30deg.yaml
+  category: real_test
+  enabled: true
+  description: Low-speed heading turn test for real robot mode.
+- id: auto_left
+  name: Match Auto Left
+  file: match/auto_left.yaml
+  category: match
+  enabled: true
+  description: Placeholder left-side match strategy. Edit steps before real use.
+- id: auto_right
+  name: Match Auto Right
+  file: match/auto_right.yaml
+  category: match
+  enabled: true
+  description: Placeholder right-side match strategy. Edit steps before real use.
+- id: slave_b_reserved_demo
+  name: Slave B Reserved Demo
+  file: mechanism/slave_b_reserved_demo.yaml
+  category: mechanism
+  enabled: true
+  description: Demonstrates future mechanism steps; currently skipped by mission manager.
+- id: cp1_box_01
+  name: CP1 Box 01
+  file: match/cp1_box_01.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP1 box target 01; edit path before real match.
+- id: cp1_box_02
+  name: CP1 Box 02
+  file: match/cp1_box_02.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP1 box target 02; edit path before real match.
+- id: cp1_box_03
+  name: CP1 Box 03
+  file: match/cp1_box_03.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP1 box target 03; edit path before real match.
+- id: cp1_box_04
+  name: CP1 Box 04
+  file: match/cp1_box_04.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP1 box target 04; edit path before real match.
+- id: cp1_box_05
+  name: CP1 Box 05
+  file: match/cp1_box_05.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP1 box target 05; edit path before real match.
+- id: cp1_box_06
+  name: CP1 Box 06
+  file: match/cp1_box_06.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP1 box target 06; edit path before real match.
+- id: cp1_box_07
+  name: CP1 Box 07
+  file: match/cp1_box_07.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP1 box target 07; edit path before real match.
+- id: cp1_box_08
+  name: CP1 Box 08
+  file: match/cp1_box_08.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP1 box target 08; edit path before real match.
+- id: cp1_box_09
+  name: CP1 Box 09
+  file: match/cp1_box_09.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP1 box target 09; edit path before real match.
+- id: cp1_box_10
+  name: CP1 Box 10
+  file: match/cp1_box_10.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP1 box target 10; edit path before real match.
+- id: cp1_box_11
+  name: CP1 Box 11
+  file: match/cp1_box_11.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP1 box target 11; edit path before real match.
+- id: cp1_box_12
+  name: CP1 Box 12
+  file: match/cp1_box_12.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP1 box target 12; edit path before real match.
+- id: cp1_weapon_01
+  name: CP1 Weapon 01
+  file: match/cp1_weapon_01.yaml
+  category: match_weapon
+  enabled: true
+  description: Placeholder mission for CP1 weapon target 01; mechanism step is reserved/skipped
+    for now.
+- id: cp1_weapon_02
+  name: CP1 Weapon 02
+  file: match/cp1_weapon_02.yaml
+  category: match_weapon
+  enabled: true
+  description: Placeholder mission for CP1 weapon target 02; mechanism step is reserved/skipped
+    for now.
+- id: cp1_weapon_03
+  name: CP1 Weapon 03
+  file: match/cp1_weapon_03.yaml
+  category: match_weapon
+  enabled: true
+  description: Placeholder mission for CP1 weapon target 03; mechanism step is reserved/skipped
+    for now.
+- id: cp1_weapon_04
+  name: CP1 Weapon 04
+  file: match/cp1_weapon_04.yaml
+  category: match_weapon
+  enabled: true
+  description: Placeholder mission for CP1 weapon target 04; mechanism step is reserved/skipped
+    for now.
+- id: cp2_box_01
+  name: CP2 Box 01
+  file: match/cp2_box_01.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP2 box target 01; edit path before real match.
+- id: cp2_box_02
+  name: CP2 Box 02
+  file: match/cp2_box_02.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP2 box target 02; edit path before real match.
+- id: cp2_box_03
+  name: CP2 Box 03
+  file: match/cp2_box_03.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP2 box target 03; edit path before real match.
+- id: cp2_box_04
+  name: CP2 Box 04
+  file: match/cp2_box_04.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP2 box target 04; edit path before real match.
+- id: cp2_box_05
+  name: CP2 Box 05
+  file: match/cp2_box_05.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP2 box target 05; edit path before real match.
+- id: cp2_box_06
+  name: CP2 Box 06
+  file: match/cp2_box_06.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP2 box target 06; edit path before real match.
+- id: cp2_box_07
+  name: CP2 Box 07
+  file: match/cp2_box_07.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP2 box target 07; edit path before real match.
+- id: cp2_box_08
+  name: CP2 Box 08
+  file: match/cp2_box_08.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP2 box target 08; edit path before real match.
+- id: cp2_box_09
+  name: CP2 Box 09
+  file: match/cp2_box_09.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP2 box target 09; edit path before real match.
+- id: cp2_box_10
+  name: CP2 Box 10
+  file: match/cp2_box_10.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP2 box target 10; edit path before real match.
+- id: cp2_box_11
+  name: CP2 Box 11
+  file: match/cp2_box_11.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP2 box target 11; edit path before real match.
+- id: cp2_box_12
+  name: CP2 Box 12
+  file: match/cp2_box_12.yaml
+  category: match_box
+  enabled: true
+  description: Placeholder mission for CP2 box target 12; edit path before real match.
+- id: cp2_weapon_01
+  name: CP2 Weapon 01
+  file: match/cp2_weapon_01.yaml
+  category: match_weapon
+  enabled: true
+  description: Placeholder mission for CP2 weapon target 01; mechanism step is reserved/skipped
+    for now.
+- id: cp2_weapon_02
+  name: CP2 Weapon 02
+  file: match/cp2_weapon_02.yaml
+  category: match_weapon
+  enabled: true
+  description: Placeholder mission for CP2 weapon target 02; mechanism step is reserved/skipped
+    for now.
+- id: cp2_weapon_03
+  name: CP2 Weapon 03
+  file: match/cp2_weapon_03.yaml
+  category: match_weapon
+  enabled: true
+  description: Placeholder mission for CP2 weapon target 03; mechanism step is reserved/skipped
+    for now.
+- id: cp2_weapon_04
+  name: CP2 Weapon 04
+  file: match/cp2_weapon_04.yaml
+  category: match_weapon
+  enabled: true
+  description: Placeholder mission for CP2 weapon target 04; mechanism step is reserved/skipped
+    for now.

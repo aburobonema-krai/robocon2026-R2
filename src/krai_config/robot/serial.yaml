@@ -1,0 +1,6 @@
+s3:
+  port: /dev/ttyACM0
+  baud: 115200
+  protocol_version: 1
+  telemetry_timeout_ms: 300
+  command_timeout_ms: 200

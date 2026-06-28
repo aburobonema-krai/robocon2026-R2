@@ -1,0 +1,25 @@
+id: cp1_weapon_01
+name: CP1 Weapon 01
+category: match_weapon
+description: Placeholder mission for CP1 weapon target 01; mechanism step is reserved/skipped
+  for now.
+enabled: true
+speed_profile: safe
+steps:
+- id: 1
+  type: reset_odom
+- id: 2
+  type: reset_heading
+- id: 3
+  type: turn_rel
+  angle_deg: 15.0
+  max_angular_deg_s: 20.0
+  tolerance_deg: 3.0
+- id: 4
+  type: mechanism
+  target: slave_b
+  command: weapon_01_reserved
+  wait_until_done: false
+  timeout_ms: 1000
+- id: 5
+  type: stop

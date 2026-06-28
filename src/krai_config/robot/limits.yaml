@@ -1,0 +1,10 @@
+motion:
+  max_linear_cm_s: 25.0
+  max_angular_deg_s: 45.0
+  default_move_tolerance_cm: 2.0
+  default_turn_tolerance_deg: 2.0
+
+safety:
+  nuc_command_timeout_ms: 200
+  s3_telemetry_timeout_ms: 300
+  primitive_timeout_margin_ms: 1000

@@ -1,0 +1,4 @@
+# Request ESP32-S3 to reset local odometry.
+---
+bool success
+string message

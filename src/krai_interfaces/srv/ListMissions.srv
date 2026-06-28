@@ -1,0 +1,14 @@
+# Optional category filter. Empty string returns all enabled missions.
+string category
+
+# Include disabled catalog entries when true.
+bool include_disabled
+---
+bool success
+string message
+string[] mission_ids
+string[] names
+string[] categories
+string[] files
+bool[] enabled
+string[] descriptions

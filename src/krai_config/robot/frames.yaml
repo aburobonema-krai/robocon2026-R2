@@ -1,0 +1,5 @@
+frames:
+  odom_frame: odom_local
+  base_frame: base_link
+  imu_frame: imu_link
+  camera_frame: camera_link

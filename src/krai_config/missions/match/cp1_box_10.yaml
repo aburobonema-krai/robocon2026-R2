@@ -1,0 +1,19 @@
+id: cp1_box_10
+name: CP1 Box 10
+category: match_box
+description: Placeholder mission for CP1 box target 10; edit path before real match.
+enabled: true
+speed_profile: safe
+steps:
+- id: 1
+  type: reset_odom
+- id: 2
+  type: reset_heading
+- id: 3
+  type: move_rel
+  distance_cm: 40.0
+  max_linear_cm_s: 10.0
+  tolerance_cm: 2.0
+  heading_hold_enable: true
+- id: 4
+  type: stop

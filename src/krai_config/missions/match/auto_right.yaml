@@ -1,0 +1,27 @@
+id: auto_right
+name: auto_right
+version: 1
+category: match
+description: Placeholder autonomous strategy for right start. Tune before real use.
+speed_profile: normal
+
+steps:
+  - id: 1
+    type: reset_odom
+  - id: 2
+    type: reset_heading
+  - id: 3
+    type: move_rel
+    distance_cm: 50.0
+    heading_hold_enable: true
+  - id: 4
+    type: turn_rel
+    angle_deg: -45.0
+  - id: 5
+    type: mechanism
+    target: slave_b
+    command: lifter_up
+    wait_until_done: true
+    timeout_ms: 3000
+  - id: 6
+    type: stop

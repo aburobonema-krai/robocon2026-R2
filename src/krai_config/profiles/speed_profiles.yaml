@@ -1,0 +1,18 @@
+profiles:
+  safe:
+    max_linear_cm_s: 8.0
+    max_angular_deg_s: 20.0
+    move_tolerance_cm: 2.0
+    turn_tolerance_deg: 3.0
+
+  normal:
+    max_linear_cm_s: 15.0
+    max_angular_deg_s: 35.0
+    move_tolerance_cm: 2.0
+    turn_tolerance_deg: 2.5
+
+  aggressive:
+    max_linear_cm_s: 25.0
+    max_angular_deg_s: 45.0
+    move_tolerance_cm: 3.0
+    turn_tolerance_deg: 3.0

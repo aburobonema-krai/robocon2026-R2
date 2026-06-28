@@ -1,0 +1,45 @@
+name: debug_square
+mode: autonomous
+
+# Milestone 6 mission YAML executor test.
+# This runs fully through ROS2 action/service layers and the S3 fake primitive executor.
+
+steps:
+  - id: 1
+    type: reset_odom
+
+  - id: 2
+    type: reset_heading
+
+  - id: 3
+    type: move_rel
+    distance_cm: 100.0
+    max_speed_cm_s: 20.0
+    tolerance_cm: 2.0
+    heading_hold_enable: true
+
+  - id: 4
+    type: turn_rel
+    angle_deg: 90.0
+    max_speed_deg_s: 45.0
+    tolerance_deg: 2.0
+
+  - id: 5
+    type: wait
+    duration_s: 0.5
+
+  - id: 6
+    type: move_rel
+    distance_cm: 100.0
+    max_speed_cm_s: 20.0
+    tolerance_cm: 2.0
+    heading_hold_enable: true
+
+  - id: 7
+    type: turn_rel
+    angle_deg: -90.0
+    max_speed_deg_s: 45.0
+    tolerance_deg: 2.0
+
+  - id: 8
+    type: stop

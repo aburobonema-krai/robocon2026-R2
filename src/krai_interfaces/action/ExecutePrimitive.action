@@ -1,0 +1,19 @@
+# Execute a movement primitive on ESP32-S3.
+
+uint16 primitive_id
+string primitive_type
+float32 distance_cm
+float32 angle_deg
+float32 max_linear_cm_s
+float32 max_angular_deg_s
+float32 tolerance_cm
+float32 tolerance_deg
+bool heading_hold_enable
+---
+bool success
+string message
+---
+float32 progress
+float32 remaining
+float32 heading_error_deg
+uint8 primitive_state

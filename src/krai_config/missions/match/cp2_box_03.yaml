@@ -1,0 +1,24 @@
+id: cp2_box_03
+name: CP2 Box 03
+category: match_box
+description: Placeholder mission for CP2 box target 03; edit path before real match.
+enabled: true
+speed_profile: safe
+steps:
+- id: 1
+  type: reset_odom
+- id: 2
+  type: reset_heading
+- id: 3
+  type: move_rel
+  distance_cm: 31.0
+  max_linear_cm_s: 10.0
+  tolerance_cm: 2.0
+  heading_hold_enable: true
+- id: 4
+  type: turn_rel
+  angle_deg: 15.0
+  max_angular_deg_s: 20.0
+  tolerance_deg: 3.0
+- id: 5
+  type: stop

@@ -1,0 +1,25 @@
+name: debug_forward_turn
+mode: autonomous
+
+steps:
+  - id: 1
+    type: reset_odom
+
+  - id: 2
+    type: reset_heading
+
+  - id: 3
+    type: move_rel
+    distance_cm: 50.0
+    max_speed_cm_s: 15.0
+    tolerance_cm: 2.0
+    heading_hold_enable: true
+
+  - id: 4
+    type: turn_rel
+    angle_deg: 45.0
+    max_speed_deg_s: 30.0
+    tolerance_deg: 2.0
+
+  - id: 5
+    type: stop

@@ -1,0 +1,10 @@
+# Run a mission YAML file.
+
+string mission_file
+---
+bool success
+string message
+---
+uint16 current_step_id
+string current_step_type
+string detail

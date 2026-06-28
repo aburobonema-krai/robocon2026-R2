@@ -1,0 +1,23 @@
+id: real_short_test
+name: real_short_test
+version: 1
+category: real_test
+description: Conservative first real robot mission. Use only after telemetry, reset, STOP/ESTOP, and low-speed manual control are verified.
+speed_profile: safe
+
+steps:
+  - id: 1
+    type: reset_odom
+  - id: 2
+    type: reset_heading
+  - id: 3
+    type: move_rel
+    distance_cm: 20.0
+    # speed and tolerance come from speed_profile: safe
+    heading_hold_enable: true
+  - id: 4
+    type: turn_rel
+    angle_deg: 30.0
+    # speed and tolerance come from speed_profile: safe
+  - id: 5
+    type: stop

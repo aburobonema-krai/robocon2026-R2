@@ -1,0 +1,25 @@
+slave_b:
+  enabled: false
+  status: reserved_for_later
+
+  mechanisms:
+    lifter_base:
+      enabled: false
+      commands:
+        - lifter_up
+        - lifter_down
+        - lifter_stop
+
+    gripper_weapon:
+      enabled: false
+      commands:
+        - gripper_weapon_open
+        - gripper_weapon_close
+        - gripper_weapon_stop
+
+    gripper_box:
+      enabled: false
+      commands:
+        - gripper_box_open
+        - gripper_box_close
+        - gripper_box_stop

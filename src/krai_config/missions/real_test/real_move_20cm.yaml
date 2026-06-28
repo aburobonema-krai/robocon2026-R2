@@ -1,0 +1,16 @@
+id: real_move_20cm
+name: real_move_20cm
+version: 1
+category: real_test
+description: Low-speed real robot straight movement check.
+speed_profile: safe
+
+steps:
+  - id: 1
+    type: reset_odom
+  - id: 2
+    type: move_rel
+    distance_cm: 20.0
+    heading_hold_enable: true
+  - id: 3
+    type: stop

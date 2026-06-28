@@ -1,0 +1,15 @@
+id: real_turn_30deg
+name: real_turn_30deg
+version: 1
+category: real_test
+description: Low-speed real robot turn check.
+speed_profile: safe
+
+steps:
+  - id: 1
+    type: reset_heading
+  - id: 2
+    type: turn_rel
+    angle_deg: 30.0
+  - id: 3
+    type: stop

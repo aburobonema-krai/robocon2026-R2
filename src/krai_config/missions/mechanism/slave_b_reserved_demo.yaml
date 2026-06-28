@@ -1,0 +1,25 @@
+name: slave_b_reserved_demo
+mode: autonomous
+
+# Slave B is not implemented yet. Mechanism steps are skipped by the Milestone 6 mission manager.
+
+steps:
+  - id: 1
+    type: reset_odom
+
+  - id: 2
+    type: mechanism
+    target: slave_b
+    command: lifter_up
+    wait_until_done: true
+    timeout_ms: 3000
+
+  - id: 3
+    type: mechanism
+    target: slave_b
+    command: gripper_box_close
+    wait_until_done: true
+    timeout_ms: 1000
+
+  - id: 4
+    type: stop

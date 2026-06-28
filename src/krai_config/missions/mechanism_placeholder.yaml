@@ -1,0 +1,20 @@
+name: mechanism_placeholder
+mode: autonomous
+
+# Slave B is not implemented yet.
+# These step types are reserved so the path executor format does not need a redesign later.
+
+steps:
+  - id: 1
+    type: mechanism
+    target: slave_b
+    command: lifter_up
+    wait_until_done: true
+    timeout_ms: 3000
+
+  - id: 2
+    type: mechanism
+    target: slave_b
+    command: gripper_box_close
+    wait_until_done: true
+    timeout_ms: 1000

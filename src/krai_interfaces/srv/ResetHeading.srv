@@ -1,0 +1,4 @@
+# Request ESP32-S3 to reset heading zero.
+---
+bool success
+string message
