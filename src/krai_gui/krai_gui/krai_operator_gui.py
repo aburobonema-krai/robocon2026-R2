@@ -64,9 +64,7 @@ class KraiGuiRosNode(Node):
         self.last_mission_feedback: str = ''
         self.last_mission_result: str = ''
 
-        self.manual_enabled = False
-        self.current_manual_twist = Twist()
-        self.last_manual_publish = 0.0
+        # Manual control removed
 
         self.create_subscription(S3Health, '/s3/health', self._on_health, 10)
         self.create_subscription(Odometry, '/s3/odom_local', self._on_odom, 10)
@@ -75,14 +73,14 @@ class KraiGuiRosNode(Node):
         self.create_subscription(MissionState, '/mission/state', self._on_mission_state, 10)
         self.create_subscription(String, '/s3_bridge/debug', self._on_debug, 10)
 
-        self.cmd_vel_pub = self.create_publisher(Twist, '/manual/cmd_vel', 10)
+        # Manual publisher removed
 
         self.s3_ping_client = self.create_client(Trigger, '/s3_ping')
         self.cmd_stop_client = self.create_client(Trigger, '/cmd_stop')
         self.reset_odom_client = self.create_client(ResetOdom, '/reset_odom')
         self.reset_heading_client = self.create_client(ResetHeading, '/reset_heading')
         self.estop_client = self.create_client(EmergencyStop, '/emergency_stop')
-        self.manual_control_client = self.create_client(SetBool, '/manual_control')
+        # Manual client removed
         self.mission_list_client = self.create_client(ListMissions, '/mission/list')
         self.run_mission_client = ActionClient(self, RunMission, '/run_mission')
 
@@ -144,39 +142,12 @@ class KraiGuiRosNode(Node):
         self._call_service(self.reset_heading_client, ResetHeading.Request(), 'RESET_HEADING')
 
     def stop(self) -> None:
-        self.set_manual_velocity(0.0, 0.0)
         self._call_service(self.cmd_stop_client, Trigger.Request(), 'STOP')
 
     def estop(self, enable: bool) -> None:
         req = EmergencyStop.Request()
         req.enable = bool(enable)
         self._call_service(self.estop_client, req, 'ESTOP_ON' if enable else 'ESTOP_CLEAR')
-
-    def set_manual_enabled(self, enable: bool) -> None:
-        req = SetBool.Request()
-        req.data = bool(enable)
-
-        def _done(res):
-            if getattr(res, 'success', False):
-                self.manual_enabled = enable
-                if not enable:
-                    self.set_manual_velocity(0.0, 0.0)
-
-        self._call_service(self.manual_control_client, req, 'MANUAL_ON' if enable else 'MANUAL_OFF', _done)
-
-    def set_manual_velocity(self, linear_m_s: float, angular_rad_s: float) -> None:
-        self.current_manual_twist = Twist()
-        self.current_manual_twist.linear.x = float(linear_m_s)
-        self.current_manual_twist.angular.z = float(angular_rad_s)
-        if self.manual_enabled:
-            self.cmd_vel_pub.publish(self.current_manual_twist)
-            self.last_manual_publish = time.monotonic()
-
-    def publish_manual_keepalive(self) -> None:
-        if not self.manual_enabled:
-            return
-        self.cmd_vel_pub.publish(self.current_manual_twist)
-        self.last_manual_publish = time.monotonic()
 
     def list_missions(self, category: str = '', include_disabled: bool = False) -> None:
         req = ListMissions.Request()
@@ -318,10 +289,6 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         self.ui_timer.timeout.connect(self._refresh_ui)
         self.ui_timer.start(100)
 
-        self.manual_timer = QtCore.QTimer(self)
-        self.manual_timer.timeout.connect(self.ros_node.publish_manual_keepalive)
-        self.manual_timer.start(100)
-
     # ----------------------------- builders -----------------------------
     def _card(self) -> QtWidgets.QFrame:
         frame = QtWidgets.QFrame()
@@ -343,18 +310,16 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         left = QtWidgets.QVBoxLayout()
         left.setSpacing(5)
         left.addWidget(self._build_safety_card())
-        left.addWidget(self._build_manual_card())
         left.addWidget(self._build_selected_card())
 
         mid = QtWidgets.QVBoxLayout()
         mid.setSpacing(5)
         mid.addWidget(self._build_status_card(), 1)
-        mid.addWidget(self._build_mission_card(), 1)
 
         right = QtWidgets.QVBoxLayout()
         right.setSpacing(5)
-        right.addWidget(self._build_log_card(), 1)
-        right.addWidget(self._build_debug_card(), 1)
+        right.addWidget(self._build_log_card(), 60)
+        right.addWidget(self._build_debug_card(), 40)
 
         layout.addLayout(left, 34)
         layout.addLayout(mid, 36)
@@ -394,44 +359,32 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         layout.addLayout(row1)
         return card
 
-    def _build_manual_card(self) -> QtWidgets.QFrame:
-        card = self._card()
-        layout = QtWidgets.QVBoxLayout(card)
-        layout.addWidget(self._title('MANUAL CONTROL'))
-
-        row = QtWidgets.QHBoxLayout()
-        self.btn_manual_enable = self._make_button('ENABLE MANUAL', 'start')
-        self.btn_manual_disable = self._make_button('DISABLE MANUAL', 'neutral')
-        self.btn_manual_enable.clicked.connect(lambda: self.ros_node.set_manual_enabled(True))
-        self.btn_manual_disable.clicked.connect(lambda: self.ros_node.set_manual_enabled(False))
-        row.addWidget(self.btn_manual_enable)
-        row.addWidget(self.btn_manual_disable)
-        layout.addLayout(row)
-
-        grid = QtWidgets.QGridLayout()
-        buttons = [
-            ('FORWARD', 0.10, 0.0, 0, 1),
-            ('LEFT', 0.0, 0.35, 1, 0),
-            ('ZERO', 0.0, 0.0, 1, 1),
-            ('RIGHT', 0.0, -0.35, 1, 2),
-            ('BACK', -0.08, 0.0, 2, 1),
-        ]
-        for label, lin, ang, r, c in buttons:
-            btn = self._make_button(label, 'neutral')
-            btn.pressed.connect(lambda l=lin, a=ang: self.ros_node.set_manual_velocity(l, a))
-            btn.released.connect(lambda: self.ros_node.set_manual_velocity(0.0, 0.0))
-            grid.addWidget(btn, r, c)
-        layout.addLayout(grid)
-        return card
-
     def _build_selected_card(self) -> QtWidgets.QFrame:
         card = self._card()
         layout = QtWidgets.QVBoxLayout(card)
-        layout.addWidget(self._title('SELECTED INDEX'))
+        layout.addWidget(self._title('SELECTED INDEX / MISSION STATE'))
         self.selected_label = QtWidgets.QLabel('-')
         self.selected_label.setWordWrap(True)
         self.selected_label.setObjectName('InfoBox')
+        
+        line = QtWidgets.QFrame()
+        line.setFrameShape(QtWidgets.QFrame.HLine)
+        line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        line.setStyleSheet("background-color: #213853;")
+        
+        self.mission_state_label = QtWidgets.QLabel('-')
+        self.mission_state_label.setWordWrap(True)
+        self.mission_state_label.setObjectName('InfoBox')
+        
+        self.mission_feedback_label = QtWidgets.QLabel('-')
+        self.mission_feedback_label.setWordWrap(True)
+        self.mission_feedback_label.setObjectName('InfoBox')
+        
         layout.addWidget(self.selected_label)
+        layout.addWidget(line)
+        layout.addWidget(self.mission_state_label)
+        layout.addWidget(self.mission_feedback_label)
+        layout.addStretch(1)
         return card
 
     def _build_status_card(self) -> QtWidgets.QFrame:
@@ -446,27 +399,7 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
             label.setObjectName('InfoBox')
             label.setWordWrap(True)
             layout.addWidget(label)
-        return card
-
-    def _build_mission_card(self) -> QtWidgets.QFrame:
-        card = self._card()
-        layout = QtWidgets.QVBoxLayout(card)
-        layout.addWidget(self._title('MISSION CATALOG / STATE'))
-        row = QtWidgets.QHBoxLayout()
-        self.category_combo = QtWidgets.QComboBox()
-        self.category_combo.addItem('all')
-        self.btn_refresh_missions = self._make_button('REFRESH MISSIONS', 'neutral')
-        self.btn_refresh_missions.clicked.connect(lambda: self.ros_node.list_missions('' if self.category_combo.currentText() == 'all' else self.category_combo.currentText()))
-        row.addWidget(self.category_combo)
-        row.addWidget(self.btn_refresh_missions)
-        layout.addLayout(row)
-        self.mission_catalog_label = QtWidgets.QLabel('-')
-        self.mission_state_label = QtWidgets.QLabel('-')
-        self.mission_feedback_label = QtWidgets.QLabel('-')
-        for label in [self.mission_catalog_label, self.mission_state_label, self.mission_feedback_label]:
-            label.setObjectName('InfoBox')
-            label.setWordWrap(True)
-            layout.addWidget(label)
+        layout.addStretch(1)
         return card
 
     def _build_log_card(self) -> QtWidgets.QFrame:
@@ -493,22 +426,22 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(5)
 
-        # Kiri: CP selector (dipindah dari kanan, style tidak berubah)
-        layout.addWidget(self._build_cp_selector(), 20)
+        # Kiri: CP selector (18%)
+        layout.addWidget(self._build_cp_selector(), 18)
 
-        # Tengah: PATH (baru) di atas + BOX 12 di bawah
+        # Tengah: PATH di atas + BOX 12 di bawah (52%)
         center = QtWidgets.QVBoxLayout()
         center.setSpacing(5)
-        center.addWidget(self._build_path_selector(), 35)
-        center.addWidget(self._build_grid_selector(), 65)
-        layout.addLayout(center, 48)
+        center.addWidget(self._build_path_selector(), 1)
+        center.addWidget(self._build_grid_selector(), 4)
+        layout.addLayout(center, 52)
 
-        # Kanan: tombol merah+biru (baru) di atas + Weapon di bawah
+        # Kanan: tombol merah+biru di atas + Weapon di bawah (30%)
         right = QtWidgets.QVBoxLayout()
         right.setSpacing(5)
-        right.addWidget(self._build_rb_buttons(), 38)
-        right.addWidget(self._build_weapon_selector(), 62)
-        layout.addLayout(right, 32)
+        right.addWidget(self._build_rb_buttons(), 1)
+        right.addWidget(self._build_weapon_selector(), 2)
+        layout.addLayout(right, 30)
 
         return page
 
@@ -521,7 +454,7 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         for number in range(1, 13):
             btn = QtWidgets.QPushButton(str(number))
             btn.setCheckable(True)
-            btn.setMinimumSize(110, 90)
+            btn.setMinimumSize(120, 80)
             btn.setCursor(QtCore.Qt.PointingHandCursor)
             btn.clicked.connect(lambda _=False, n=number: self._select_target('box', n))
             row, col = divmod(number - 1, 4)
@@ -539,7 +472,7 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         for number in range(1, 5):
             btn = QtWidgets.QPushButton(str(number))
             btn.setCheckable(True)
-            btn.setMinimumSize(100, 72)
+            btn.setMinimumSize(120, 70)
             btn.clicked.connect(lambda _=False, n=number: self._select_target('weapon', n))
             row, col = divmod(number - 1, 2)
             grid.addWidget(btn, row, col)
@@ -555,6 +488,8 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         self.cp2 = self._make_button('CP 2', 'neutral')
         self.cp1.setCheckable(True)
         self.cp2.setCheckable(True)
+        self.cp1.setMinimumHeight(130)
+        self.cp2.setMinimumHeight(130)
         self.cp1.clicked.connect(lambda: self._select_checkpoint(1))
         self.cp2.clicked.connect(lambda: self._select_checkpoint(2))
         self.cp_buttons = [self.cp1, self.cp2]
@@ -583,7 +518,7 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         for number in range(1, 9):
             btn = QtWidgets.QPushButton(str(number))
             btn.setCheckable(True)
-            btn.setMinimumSize(70, 56)
+            btn.setMinimumSize(80, 50)
             btn.setCursor(QtCore.Qt.PointingHandCursor)
             btn.clicked.connect(lambda _=False, n=number: self._select_path(n))
             grid.addWidget(btn, 0, number - 1)
@@ -597,6 +532,8 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         layout.addWidget(self._title('AKSI'))
         self.btn_red = self._make_button('MERAH', 'estop')
         self.btn_blue = self._make_button('BIRU', 'blue')
+        self.btn_red.setMinimumHeight(55)
+        self.btn_blue.setMinimumHeight(55)
         self.btn_red.clicked.connect(self._on_red_button)
         self.btn_blue.clicked.connect(self._on_blue_button)
         layout.addWidget(self.btn_red)
@@ -684,7 +621,6 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         self._refresh_mission_labels()
         self._refresh_log_boxes()
         self._refresh_selection_label()
-        self._refresh_catalog_categories()
 
     def _refresh_status_labels(self) -> None:
         h = self.ros_node.latest_health
@@ -726,17 +662,17 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
             self.primitive_label.setText('PRIMITIVE\nNo data')
 
     def _refresh_mission_labels(self) -> None:
-        self.mission_catalog_label.setText(f'Catalog loaded: {len(self.ros_node.missions)} missions')
         ms = self.ros_node.latest_mission_state
         if ms:
             self.mission_state_label.setText(
                 f'MISSION STATE\n{ms.mission_name}\nstep={ms.current_step_id} type={ms.current_step_type} state={ms.state}\n{ms.detail}'
             )
         else:
-            self.mission_state_label.setText('MISSION STATE\nNo data')
-        self.mission_feedback_label.setText(
-            f'RUN FEEDBACK\n{self.ros_node.last_mission_feedback or "-"}\nResult: {self.ros_node.last_mission_result or "-"}'
-        )
+            self.mission_state_label.setText('MISSION STATE\nnone\nstep=0 type=idle state=0\nmission manager ready')
+        
+        fb = self.ros_node.last_mission_feedback
+        res = self.ros_node.last_mission_result
+        self.mission_feedback_label.setText(f'RUN FEEDBACK\nResult: {res or "-"}')
 
     def _refresh_log_boxes(self) -> None:
         text = '\n'.join(self.ros_node.event_log[-120:])
@@ -757,17 +693,6 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
             f'Name: {entry.name if entry else "-"}\n'
             f'Desc: {entry.description if entry else "-"}'
         )
-
-    def _refresh_catalog_categories(self) -> None:
-        current = self.category_combo.currentText()
-        values = ['all'] + self.ros_node.categories
-        if [self.category_combo.itemText(i) for i in range(self.category_combo.count())] != values:
-            self.category_combo.blockSignals(True)
-            self.category_combo.clear()
-            self.category_combo.addItems(values)
-            if current in values:
-                self.category_combo.setCurrentText(current)
-            self.category_combo.blockSignals(False)
 
     def _refresh_selection_styles(self) -> None:
         for i, btn in enumerate(self.cp_buttons, start=1):
