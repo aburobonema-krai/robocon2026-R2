@@ -272,6 +272,10 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         nav.setSpacing(5)
         self.btn_page_monitor = QtWidgets.QPushButton('1 CONTROL')
         self.btn_page_index = QtWidgets.QPushButton('2 INDEX')
+        self.btn_page_monitor.setMinimumHeight(60)
+        self.btn_page_index.setMinimumHeight(60)
+        self.btn_page_monitor.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        self.btn_page_index.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.btn_page_monitor.clicked.connect(lambda: self._set_page(0))
         self.btn_page_index.clicked.connect(lambda: self._set_page(1))
         nav.addWidget(self.btn_page_monitor)
@@ -307,23 +311,26 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(5)
 
+        # Kiri: 33% full safety control
         left = QtWidgets.QVBoxLayout()
         left.setSpacing(5)
-        left.addWidget(self._build_safety_card())
-        left.addWidget(self._build_selected_card())
+        left.addWidget(self._build_safety_card(), 1)
 
+        # Tengah: 33% Selected Index (top) & S3 Debug (bottom stretch)
         mid = QtWidgets.QVBoxLayout()
         mid.setSpacing(5)
-        mid.addWidget(self._build_status_card(), 1)
+        mid.addWidget(self._build_selected_card(), 0)
+        mid.addWidget(self._build_debug_card(), 1)
 
+        # Kanan: 33% Robot Status (top) & Event Log (bottom stretch)
         right = QtWidgets.QVBoxLayout()
         right.setSpacing(5)
-        right.addWidget(self._build_log_card(), 60)
-        right.addWidget(self._build_debug_card(), 40)
+        right.addWidget(self._build_status_card(), 0)
+        right.addWidget(self._build_log_card(), 1)
 
-        layout.addLayout(left, 34)
-        layout.addLayout(mid, 36)
-        layout.addLayout(right, 30)
+        layout.addLayout(left, 33)
+        layout.addLayout(mid, 33)
+        layout.addLayout(right, 34)
         return page
 
     def _build_safety_card(self) -> QtWidgets.QFrame:
@@ -356,7 +363,7 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         ]
         for i, b in enumerate(buttons):
             row1.addWidget(b, i // 2, i % 2)
-        layout.addLayout(row1)
+        layout.addLayout(row1, 1)
         return card
 
     def _build_selected_card(self) -> QtWidgets.QFrame:
@@ -453,6 +460,7 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         grid.setSpacing(6)
         for number in range(1, 13):
             btn = QtWidgets.QPushButton(str(number))
+            btn.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
             btn.setCheckable(True)
             btn.setMinimumSize(120, 80)
             btn.setCursor(QtCore.Qt.PointingHandCursor)
@@ -471,6 +479,7 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         grid.setSpacing(6)
         for number in range(1, 5):
             btn = QtWidgets.QPushButton(str(number))
+            btn.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
             btn.setCheckable(True)
             btn.setMinimumSize(120, 70)
             btn.clicked.connect(lambda _=False, n=number: self._select_target('weapon', n))
@@ -517,6 +526,7 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         grid.setSpacing(6)
         for number in range(1, 9):
             btn = QtWidgets.QPushButton(str(number))
+            btn.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
             btn.setCheckable(True)
             btn.setMinimumSize(80, 50)
             btn.setCursor(QtCore.Qt.PointingHandCursor)
@@ -530,15 +540,19 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         card = self._card()
         layout = QtWidgets.QVBoxLayout(card)
         layout.addWidget(self._title('AKSI'))
+        
+        btn_layout = QtWidgets.QHBoxLayout()
         self.btn_red = self._make_button('MERAH', 'estop')
         self.btn_blue = self._make_button('BIRU', 'blue')
-        self.btn_red.setMinimumHeight(55)
-        self.btn_blue.setMinimumHeight(55)
+        self.btn_red.setMinimumHeight(60)
+        self.btn_blue.setMinimumHeight(60)
         self.btn_red.clicked.connect(self._on_red_button)
         self.btn_blue.clicked.connect(self._on_blue_button)
-        layout.addWidget(self.btn_red)
-        layout.addWidget(self.btn_blue)
-        layout.addStretch(1)
+        
+        btn_layout.addWidget(self.btn_red, 1)
+        btn_layout.addWidget(self.btn_blue, 1)
+        layout.addLayout(btn_layout, 1)
+        
         return card
 
     # ----------------------------- actions -----------------------------
@@ -720,6 +734,7 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
 
     def _make_button(self, text: str, kind: str) -> QtWidgets.QPushButton:
         btn = QtWidgets.QPushButton(text)
+        btn.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         btn.setMinimumHeight(52)
         btn.setCursor(QtCore.Qt.PointingHandCursor)
         btn.setStyleSheet(self._button_style(kind))
@@ -727,13 +742,13 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
 
     def _global_styles(self) -> str:
         return """
-        QWidget { background: #07111f; color: #e8f0fb; font-family: DejaVu Sans; font-size: 10px; }
-        #TitleBar { background: #0f1c2f; border: 1px solid #243a5a; border-radius: 8px; padding: 6px; font-size: 17px; font-weight: 900; }
+        QWidget { background: #07111f; color: #e8f0fb; font-family: DejaVu Sans; font-size: 13px; }
+        #TitleBar { background: #0f1c2f; border: 1px solid #243a5a; border-radius: 8px; padding: 6px; font-size: 20px; font-weight: 900; }
         #Card { background: #0b1626; border: 1px solid #223752; border-radius: 9px; }
-        #SectionTitle { background: #12213a; border: 1px solid #2a4365; border-radius: 7px; padding: 4px; font-size: 11px; font-weight: 900; }
-        #InfoBox { background: #07111f; border: 1px solid #213853; border-radius: 7px; padding: 4px; color: #e8f0fb; font-weight: 650; }
-        QPlainTextEdit { background: #040b14; border: 1px solid #1f334c; border-radius: 7px; color: #d8e4f2; padding: 4px; font-size: 9px; }
-        QComboBox { background: #0e1a2c; border: 1px solid #2a4365; border-radius: 6px; padding: 4px; min-height: 24px; }
+        #SectionTitle { background: #12213a; border: 1px solid #2a4365; border-radius: 7px; padding: 4px; font-size: 14px; font-weight: 900; }
+        #InfoBox { background: #07111f; border: 1px solid #213853; border-radius: 7px; padding: 4px; color: #e8f0fb; font-weight: 650; font-size: 13px; }
+        QPlainTextEdit { background: #040b14; border: 1px solid #1f334c; border-radius: 7px; color: #d8e4f2; padding: 4px; font-size: 11px; }
+        QComboBox { background: #0e1a2c; border: 1px solid #2a4365; border-radius: 6px; padding: 4px; min-height: 28px; }
         """
 
     def _button_style(self, kind: str) -> str:
@@ -748,7 +763,7 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         }
         bg, border = colors.get(kind, colors['neutral'])
         return f"""
-        QPushButton {{ background: {bg}; border: 1px solid {border}; border-radius: 8px; padding: 5px; color: #ffffff; font-weight: 900; font-size: 13px; }}
+        QPushButton {{ background: {bg}; border: 1px solid {border}; border-radius: 8px; padding: 5px; color: #ffffff; font-weight: 900; font-size: 15px; }}
         QPushButton:hover {{ border: 2px solid #e5f2ff; }}
         QPushButton:pressed {{ background: #ffffff; color: #07111f; }}
         """
