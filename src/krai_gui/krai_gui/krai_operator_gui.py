@@ -233,9 +233,10 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         super().__init__()
         self.ros_node = ros_node
 
-        self.selected_checkpoint: Optional[int] = None
-        self.selected_target_type: Optional[str] = None
-        self.selected_target_index: Optional[int] = None
+        self.selected_team_color: str = 'merah'
+        self.selected_checkpoint: Optional[int] = 1
+        self.selected_box_indices: List[int] = []
+        self.selected_weapon_index: Optional[int] = None
         self.selected_path: Optional[int] = None
         self.selected_mission_id: str = ''
 
@@ -245,9 +246,10 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         self.path_buttons: List[QtWidgets.QPushButton] = []
 
         self._setup_window()
+        self._refresh_selection_styles()
         self._setup_timers()
         self.ros_node.list_missions()
-        self._append_log('KRAI operator GUI ready. Pilih CP dulu, pilih Box/Weapon, lalu START.')
+        self._append_log('KRAI operator GUI ready. Pilih Box/Weapon, lalu START.')
 
     # ----------------------------- setup -----------------------------
     def _setup_window(self) -> None:
@@ -272,8 +274,8 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         nav.setSpacing(5)
         self.btn_page_monitor = QtWidgets.QPushButton('1 CONTROL')
         self.btn_page_index = QtWidgets.QPushButton('2 INDEX')
-        self.btn_page_monitor.setMinimumHeight(60)
-        self.btn_page_index.setMinimumHeight(60)
+        self.btn_page_monitor.setMinimumHeight(45)
+        self.btn_page_index.setMinimumHeight(45)
         self.btn_page_monitor.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.btn_page_index.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.btn_page_monitor.clicked.connect(lambda: self._set_page(0))
@@ -462,7 +464,7 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
             btn = QtWidgets.QPushButton(str(number))
             btn.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
             btn.setCheckable(True)
-            btn.setMinimumSize(120, 80)
+            btn.setMinimumSize(60, 50)
             btn.setCursor(QtCore.Qt.PointingHandCursor)
             btn.clicked.connect(lambda _=False, n=number: self._select_target('box', n))
             row, col = divmod(number - 1, 4)
@@ -481,7 +483,7 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
             btn = QtWidgets.QPushButton(str(number))
             btn.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
             btn.setCheckable(True)
-            btn.setMinimumSize(120, 70)
+            btn.setMinimumSize(60, 50)
             btn.clicked.connect(lambda _=False, n=number: self._select_target('weapon', n))
             row, col = divmod(number - 1, 2)
             grid.addWidget(btn, row, col)
@@ -528,7 +530,7 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
             btn = QtWidgets.QPushButton(str(number))
             btn.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
             btn.setCheckable(True)
-            btn.setMinimumSize(80, 50)
+            btn.setMinimumSize(50, 40)
             btn.setCursor(QtCore.Qt.PointingHandCursor)
             btn.clicked.connect(lambda _=False, n=number: self._select_path(n))
             grid.addWidget(btn, 0, number - 1)
@@ -544,8 +546,8 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         btn_layout = QtWidgets.QHBoxLayout()
         self.btn_red = self._make_button('MERAH', 'estop')
         self.btn_blue = self._make_button('BIRU', 'blue')
-        self.btn_red.setMinimumHeight(60)
-        self.btn_blue.setMinimumHeight(60)
+        self.btn_red.setMinimumHeight(45)
+        self.btn_blue.setMinimumHeight(45)
         self.btn_red.clicked.connect(self._on_red_button)
         self.btn_blue.clicked.connect(self._on_blue_button)
         
@@ -558,8 +560,7 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
     # ----------------------------- actions -----------------------------
     def _set_page(self, index: int) -> None:
         self.pages.setCurrentIndex(index)
-        self.btn_page_monitor.setStyleSheet(self._nav_style(index == 0))
-        self.btn_page_index.setStyleSheet(self._nav_style(index == 1))
+        self._refresh_selection_styles()
 
     def _select_checkpoint(self, cp: int) -> None:
         self.selected_checkpoint = cp
@@ -573,30 +574,59 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
             self._show_warning('Pilih CP dulu', 'CP1 atau CP2 harus dipilih sebelum memilih box/senjata.')
             self._refresh_selection_styles()
             return
-        self.selected_target_type = target_type
-        self.selected_target_index = index
+            
+        if target_type == 'box':
+            if index in self.selected_box_indices:
+                self.selected_box_indices.remove(index)
+            else:
+                self.selected_box_indices.append(index)
+                if len(self.selected_box_indices) > 2:
+                    self.selected_box_indices.pop(0)
+        else:
+            if self.selected_weapon_index == index:
+                self.selected_weapon_index = None
+            else:
+                self.selected_weapon_index = index
+            
         self._append_log(f'Selected {target_type} {index} for CP{self.selected_checkpoint}')
         self._refresh_selection_styles()
         self._resolve_selected_mission()
 
     def _select_path(self, path: int) -> None:
-        self.selected_path = path
+        if self.selected_path == path:
+            self.selected_path = None
+        else:
+            self.selected_path = path
         self._append_log(f'Selected Path {path}')
         self._refresh_selection_styles()
         self._resolve_selected_mission()
 
     def _on_red_button(self) -> None:
-        self._append_log('MERAH button pressed')
+        self.selected_team_color = 'merah'
+        self._append_log('Team set to MERAH')
+        self._refresh_selection_styles()
 
     def _on_blue_button(self) -> None:
-        self._append_log('BIRU button pressed')
+        self.selected_team_color = 'biru'
+        self._append_log('Team set to BIRU')
+        self._refresh_selection_styles()
 
     def _resolve_selected_mission(self) -> None:
-        if self.selected_checkpoint is None or self.selected_target_type is None or self.selected_target_index is None:
+        if self.selected_checkpoint is None:
             self.selected_mission_id = ''
             return
-        prefix = 'box' if self.selected_target_type == 'box' else 'weapon'
-        self.selected_mission_id = f'cp{self.selected_checkpoint}_{prefix}_{self.selected_target_index:02d}'
+            
+        parts = [f'cp{self.selected_checkpoint}']
+        if self.selected_box_indices:
+            for b in sorted(self.selected_box_indices):
+                parts.append(f'box_{b:02d}')
+        if self.selected_weapon_index is not None:
+            parts.append(f'weapon_{self.selected_weapon_index:02d}')
+            
+        if len(parts) > 1:
+            self.selected_mission_id = '_'.join(parts)
+        else:
+            self.selected_mission_id = ''
 
     def _on_start(self) -> None:
         self._resolve_selected_mission()
@@ -622,9 +652,9 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         self.ros_node.stop()
         self.ros_node.reset_odom()
         self.ros_node.reset_heading()
-        self.selected_checkpoint = None
-        self.selected_target_type = None
-        self.selected_target_index = None
+        self.selected_checkpoint = 1
+        self.selected_box_indices = []
+        self.selected_weapon_index = None
         self.selected_mission_id = ''
         self.selected_path = None
         self._refresh_selection_styles()
@@ -698,10 +728,19 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
     def _refresh_selection_label(self) -> None:
         exists = self.selected_mission_id in self.ros_node.missions if self.ros_node.missions else False
         entry = self.ros_node.missions.get(self.selected_mission_id) if self.selected_mission_id else None
+        
+        target_str = []
+        if self.selected_box_indices:
+            for b in sorted(self.selected_box_indices):
+                target_str.append(f"box {b}")
+        if self.selected_weapon_index is not None:
+            target_str.append(f"weapon {self.selected_weapon_index}")
+            
         self.selected_label.setText(
+            f'Team: {self.selected_team_color.upper()}\n'
             f'CP: {self.selected_checkpoint or "-"}\n'
             f'Path: {self.selected_path or "-"}\n'
-            f'Target: {self.selected_target_type or "-"} {self.selected_target_index or ""}\n'
+            f'Target: {", ".join(target_str) or "-"}\n'
             f'Mission ID: {self.selected_mission_id or "-"}\n'
             f'Catalog: {"OK" if exists else "not found / not loaded"}\n'
             f'Name: {entry.name if entry else "-"}\n'
@@ -709,21 +748,33 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         )
 
     def _refresh_selection_styles(self) -> None:
+        active_style = 'estop' if self.selected_team_color == 'merah' else 'blue'
+        
+        curr = self.pages.currentIndex()
+        self.btn_page_monitor.setStyleSheet(self._nav_style('active' if curr == 0 else 'neutral'))
+        self.btn_page_index.setStyleSheet(self._nav_style(active_style if curr == 1 else 'neutral'))
+        
+        self.btn_red.setStyleSheet(self._button_style('estop' if self.selected_team_color == 'merah' else 'neutral'))
+        self.btn_blue.setStyleSheet(self._button_style('blue' if self.selected_team_color == 'biru' else 'neutral'))
+        
         for i, btn in enumerate(self.cp_buttons, start=1):
             btn.setChecked(self.selected_checkpoint == i)
-            btn.setStyleSheet(self._button_style('active' if self.selected_checkpoint == i else 'neutral'))
+            btn.setStyleSheet(self._button_style(active_style if self.selected_checkpoint == i else 'neutral'))
+            
         for i, btn in enumerate(self.path_buttons, start=1):
             active = self.selected_path == i
             btn.setChecked(active)
-            btn.setStyleSheet(self._grid_style(active))
+            btn.setStyleSheet(self._grid_style(active_style if active else 'neutral'))
+            
         for i, btn in enumerate(self.grid_buttons, start=1):
-            active = self.selected_target_type == 'box' and self.selected_target_index == i
+            active = i in self.selected_box_indices
             btn.setChecked(active)
-            btn.setStyleSheet(self._grid_style(active))
+            btn.setStyleSheet(self._grid_style(active_style if active else 'neutral'))
+            
         for i, btn in enumerate(self.weapon_buttons, start=1):
-            active = self.selected_target_type == 'weapon' and self.selected_target_index == i
+            active = self.selected_weapon_index == i
             btn.setChecked(active)
-            btn.setStyleSheet(self._weapon_style(active))
+            btn.setStyleSheet(self._weapon_style(active_style if active else 'neutral'))
 
     # ----------------------------- utils/styles -----------------------------
     def _append_log(self, text: str) -> None:
@@ -735,7 +786,7 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
     def _make_button(self, text: str, kind: str) -> QtWidgets.QPushButton:
         btn = QtWidgets.QPushButton(text)
         btn.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        btn.setMinimumHeight(52)
+        btn.setMinimumHeight(40)
         btn.setCursor(QtCore.Qt.PointingHandCursor)
         btn.setStyleSheet(self._button_style(kind))
         return btn
@@ -768,14 +819,14 @@ class KraiOperatorWindow(QtWidgets.QMainWindow):
         QPushButton:pressed {{ background: #ffffff; color: #07111f; }}
         """
 
-    def _grid_style(self, active: bool) -> str:
-        return self._button_style('active' if active else 'neutral') + 'QPushButton { font-size: 26px; }'
+    def _grid_style(self, kind: str) -> str:
+        return self._button_style(kind) + 'QPushButton { font-size: 26px; }'
 
-    def _weapon_style(self, active: bool) -> str:
-        return self._button_style('active' if active else 'neutral') + 'QPushButton { font-size: 30px; }'
+    def _weapon_style(self, kind: str) -> str:
+        return self._button_style(kind) + 'QPushButton { font-size: 30px; }'
 
-    def _nav_style(self, active: bool) -> str:
-        return self._button_style('active' if active else 'neutral')
+    def _nav_style(self, kind: str) -> str:
+        return self._button_style(kind)
 
 
     def keyPressEvent(self, event) -> None:
