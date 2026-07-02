@@ -16,6 +16,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/S3Health.msg"
   "msg/PrimitiveStatus.msg"
   "msg/MissionState.msg"
+  "msg/DetectedObject.msg"
+  "msg/CameraDetection.msg"
   "srv/ResetOdom.srv"
   "srv/ResetHeading.srv"
   "srv/SetRobotMode.srv"
