@@ -1,0 +1,671 @@
+/* ==========================================================================
+   KRAI Operator HMI Web Replica - Stylesheet
+   Faithfully matching PyQt5 GUI theme (krai_operator_gui.py)
+   Target display: 1024 x 600 (7 inch IPS HMI) with responsive scaling
+   ========================================================================== */
+
+:root {
+  --bg-main: #07111f;
+  --bg-card: #0b1626;
+  --bg-title: #0f1c2f;
+  --bg-section: #12213a;
+  --bg-log: #040b14;
+  --bg-infobox: #07111f;
+  
+  --border-card: #223752;
+  --border-title: #243a5a;
+  --border-section: #2a4365;
+  --border-log: #1f334c;
+  --border-infobox: #213853;
+
+  --text-main: #e8f0fb;
+  --text-muted: #8ea5c4;
+  --text-log: #d8e4f2;
+  --text-white: #ffffff;
+
+  /* Button themes */
+  --btn-neutral-bg: #16243a;
+  --btn-neutral-border: #2d4566;
+
+  --btn-start-bg: #0f7a4f;
+  --btn-start-border: #18a66d;
+
+  --btn-stop-bg: #a16207;
+  --btn-stop-border: #f59e0b;
+
+  --btn-estop-bg: #991b1b;
+  --btn-estop-border: #ef4444;
+
+  --btn-reset-bg: #3730a3;
+  --btn-reset-border: #6366f1;
+
+  --btn-active-bg: #0e7490;
+  --btn-active-border: #22d3ee;
+
+  --btn-blue-bg: #1e40af;
+  --btn-blue-border: #3b82f6;
+
+  /* Dynamic active theme (swapped by team color JS) */
+  --btn-theme-active-bg: #991b1b;
+  --btn-theme-active-border: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  background-color: #030811;
+  color: var(--text-main);
+  font-family: 'DejaVu Sans', 'JetBrains Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 1.3;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Portfolio Header & Footer (Wraps around HMI)
+   ========================================================================== */
+.portfolio-banner {
+  background: linear-gradient(90deg, #0b1626, #12213a);
+  border-bottom: 1px solid var(--border-section);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.banner-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge-polinema {
+  background: #ffb703;
+  color: #021124;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.banner-title {
+  font-weight: 600;
+  color: #c9ddf7;
+}
+
+.banner-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sim-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid #10b981;
+  color: #34d399;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.sim-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10b981;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+.banner-btn, .banner-link {
+  background: #16243a;
+  border: 1px solid #2d4566;
+  color: #e8f0fb;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.banner-btn:hover, .banner-link:hover {
+  background: #223752;
+  border-color: #4b6b94;
+}
+
+.portfolio-footer {
+  background: #050d18;
+  border-top: 1px solid #1a2c44;
+  padding: 6px 16px;
+  font-size: 11px;
+  color: #627b9c;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ==========================================================================
+   HMI Viewport & 1024x600 Frame Container
+   ========================================================================== */
+.hmi-viewport {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background-color: #030811;
+}
+
+.hmi-frame {
+  width: 1024px;
+  height: 600px;
+  max-width: 100%;
+  background-color: var(--bg-main);
+  border: 2px solid #223752;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Fullscreen mode */
+body.fullscreen .portfolio-banner,
+body.fullscreen .portfolio-footer {
+  display: none !important;
+}
+
+body.fullscreen .hmi-viewport {
+  padding: 0;
+  height: 100vh;
+}
+
+body.fullscreen .hmi-frame {
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  border: none;
+}
+
+/* ==========================================================================
+   HMI Components
+   ========================================================================== */
+.hmi-titlebar {
+  background: var(--bg-title);
+  border: 1px solid var(--border-title);
+  border-radius: 8px;
+  padding: 6px;
+  font-size: 20px;
+  font-weight: 900;
+  text-align: center;
+  color: var(--text-main);
+  letter-spacing: 0.5px;
+}
+
+.hmi-nav {
+  display: flex;
+  gap: 5px;
+}
+
+.nav-btn {
+  flex: 1;
+  height: 45px;
+  background: var(--btn-neutral-bg);
+  border: 1px solid var(--btn-neutral-border);
+  border-radius: 8px;
+  color: var(--text-white);
+  font-weight: 900;
+  font-size: 15px;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.nav-btn:hover {
+  border: 2px solid #e5f2ff;
+}
+
+.nav-btn.active {
+  background: var(--btn-theme-active-bg);
+  border-color: var(--btn-theme-active-border);
+}
+
+/* Pages */
+.hmi-page {
+  flex: 1;
+  display: none;
+  gap: 5px;
+  height: calc(100% - 85px);
+}
+
+.hmi-page.active {
+  display: flex;
+}
+
+/* Cards & Titles */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 9px;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.card-title {
+  background: var(--bg-section);
+  border: 1px solid var(--border-section);
+  border-radius: 7px;
+  padding: 4px;
+  font-size: 14px;
+  font-weight: 900;
+  text-align: center;
+  color: var(--text-main);
+}
+
+.info-box {
+  background: var(--bg-infobox);
+  border: 1px solid var(--border-infobox);
+  border-radius: 7px;
+  padding: 4px;
+  color: var(--text-main);
+  font-weight: 650;
+  font-size: 12px;
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--border-infobox);
+  margin: 2px 0;
+}
+
+/* Log & Debug areas */
+.log-area {
+  flex: 1;
+  background: var(--bg-log);
+  border: 1px solid var(--border-log);
+  border-radius: 7px;
+  color: var(--text-log);
+  padding: 5px;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 11px;
+  resize: none;
+  overflow-y: scroll;
+  outline: none;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Buttons */
+.btn {
+  background: var(--btn-neutral-bg);
+  border: 1px solid var(--btn-neutral-border);
+  border-radius: 8px;
+  padding: 5px;
+  color: var(--text-white);
+  font-weight: 900;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all 0.1s ease;
+}
+
+.btn:hover {
+  border: 2px solid #e5f2ff;
+}
+
+.btn:active {
+  background: #ffffff;
+  color: #07111f;
+}
+
+.btn-neutral {
+  background: var(--btn-neutral-bg);
+  border-color: var(--btn-neutral-border);
+}
+
+.btn-start {
+  background: var(--btn-start-bg);
+  border-color: var(--btn-start-border);
+}
+
+.btn-stop {
+  background: var(--btn-stop-bg);
+  border-color: var(--btn-stop-border);
+}
+
+.btn-estop {
+  background: var(--btn-estop-bg);
+  border-color: var(--btn-estop-border);
+}
+
+.btn-reset {
+  background: var(--btn-reset-bg);
+  border-color: var(--btn-reset-border);
+}
+
+.btn-blue {
+  background: var(--btn-blue-bg);
+  border-color: var(--btn-blue-border);
+}
+
+/* ==========================================================================
+   PAGE 1: CONTROL Specific Layout
+   ========================================================================== */
+.col-control {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.col-safety {
+  flex: 33;
+}
+
+.col-mid {
+  flex: 33;
+}
+
+.col-right {
+  flex: 34;
+}
+
+.safety-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(4, 1fr);
+  gap: 6px;
+  flex: 1;
+  margin-top: 4px;
+}
+
+.safety-grid .btn {
+  min-height: 48px;
+  height: 100%;
+}
+
+.card-selected {
+  flex: 0 0 auto;
+}
+
+.card-debug {
+  flex: 1;
+}
+
+.debug-area {
+  min-height: 120px;
+}
+
+.card-status {
+  flex: 0 0 auto;
+}
+
+.card-log {
+  flex: 1;
+}
+
+/* 2D Field Canvas */
+.canvas-container {
+  background: #030811;
+  border: 1px solid var(--border-infobox);
+  border-radius: 7px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.canvas-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.canvas-coords {
+  color: #38bdf8;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+#field-canvas {
+  width: 100%;
+  height: 75px;
+  background: #071324;
+  border-radius: 4px;
+  display: block;
+}
+
+/* ==========================================================================
+   PAGE 2: INDEX Specific Layout
+   ========================================================================== */
+.col-index {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.col-cp {
+  flex: 18;
+}
+
+.col-path-grid {
+  flex: 52;
+}
+
+.col-team-weapon {
+  flex: 30;
+}
+
+.cp-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.btn-cp {
+  height: 125px;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.btn-cp.checked {
+  background: var(--btn-theme-active-bg);
+  border-color: var(--btn-theme-active-border);
+}
+
+.info-flow {
+  flex: 1;
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #a0aec0;
+}
+
+/* Path selector (8 columns) */
+.card-path {
+  flex: 1;
+}
+
+.path-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 5px;
+  flex: 1;
+  margin-top: 4px;
+}
+
+.btn-path {
+  font-size: 20px;
+  min-height: 40px;
+}
+
+.btn-path.checked {
+  background: var(--btn-theme-active-bg);
+  border-color: var(--btn-theme-active-border);
+}
+
+/* Target Box selector (4 cols x 3 rows) */
+.card-grid {
+  flex: 4;
+}
+
+.box-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
+  flex: 1;
+  margin-top: 4px;
+}
+
+.btn-box {
+  font-size: 26px;
+  min-height: 52px;
+}
+
+.btn-box.checked {
+  background: var(--btn-theme-active-bg);
+  border-color: var(--btn-theme-active-border);
+}
+
+/* Team buttons */
+.card-team {
+  flex: 1;
+}
+
+.team-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  flex: 1;
+  margin-top: 4px;
+}
+
+.btn-team {
+  min-height: 44px;
+}
+
+.btn-team.selected-red {
+  background: var(--btn-estop-bg);
+  border-color: var(--btn-estop-border);
+}
+
+.btn-team.selected-blue {
+  background: var(--btn-blue-bg);
+  border-color: var(--btn-blue-border);
+}
+
+/* Weapon selector (2 cols x 2 rows) */
+.card-weapon {
+  flex: 2;
+}
+
+.weapon-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 6px;
+  flex: 1;
+  margin-top: 4px;
+}
+
+.btn-weapon {
+  font-size: 30px;
+  min-height: 55px;
+}
+
+.btn-weapon.checked {
+  background: var(--btn-theme-active-bg);
+  border-color: var(--btn-theme-active-border);
+}
+
+/* ==========================================================================
+   Modal Dialog / Toast
+   ========================================================================== */
+.modal-overlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(4, 11, 20, 0.85);
+  backdrop-filter: blur(2px);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal-card {
+  background: #0f1c2f;
+  border: 2px solid #f59e0b;
+  border-radius: 10px;
+  padding: 16px 20px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #f59e0b;
+}
+
+.modal-body {
+  font-size: 13px;
+  color: #e8f0fb;
+  line-height: 1.4;
+}
+
+.modal-close {
+  align-self: flex-end;
+  min-width: 80px;
+  padding: 6px 14px;
+}

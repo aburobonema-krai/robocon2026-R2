@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KRAI Operator GUI - HMI 1024x600 (Interactive Web Demo)</title>
+  <link rel="stylesheet" href="demo.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Portfolio Top Banner -->
+  <header class="portfolio-banner">
+    <div class="banner-left">
+      <span class="badge badge-polinema">POLINEMA ROBOCON 2026</span>
+      <span class="banner-title">KRAI R2 Operator HMI • Web Interactive Portfolio Demo</span>
+    </div>
+    <div class="banner-right">
+      <span class="sim-pill" id="sim-status-pill"><span class="sim-dot"></span> SIMULASI AKTIF (10Hz)</span>
+      <button class="banner-btn" id="btn-toggle-fullscreen" title="Layar Penuh (F11)">⛶ Fullscreen</button>
+      <a href="https://github.com/aburobonema-krai/robocon2026-R2" target="_blank" class="banner-link" id="repo-link">📁 GitHub Repo</a>
+    </div>
+  </header>
+
+  <!-- HMI Container (1024x600 fixed-ratio canvas container) -->
+  <main class="hmi-viewport">
+    <div class="hmi-frame" id="hmi-frame">
+
+      <!-- HMI Title Bar -->
+      <div class="hmi-titlebar">
+        KRAI ROBOT CONTROL - ROS2 / ESP32-S3
+      </div>
+
+      <!-- Navigation Bar (Control vs Index) -->
+      <nav class="hmi-nav">
+        <button class="nav-btn active" id="nav-btn-control" data-page="control">1 CONTROL</button>
+        <button class="nav-btn" id="nav-btn-index" data-page="index">2 INDEX</button>
+      </nav>
+
+      <!-- PAGE 1: CONTROL (Safety, State, Status, Log) -->
+      <section class="hmi-page active" id="page-control">
+        
+        <!-- Kolom Kiri: Robot Safety / Basic Control (33%) -->
+        <div class="col-control col-safety">
+          <div class="card h-full">
+            <div class="card-title">ROBOT SAFETY / BASIC CONTROL</div>
+            <div class="safety-grid">
+              <button class="btn btn-neutral" id="btn-ping">PING</button>
+              <button class="btn btn-neutral" id="btn-reset-odom">RESET ODOM</button>
+              <button class="btn btn-neutral" id="btn-reset-heading">RESET HEADING</button>
+              <button class="btn btn-reset" id="btn-reset-all">RESET GUI + ROBOT</button>
+              <button class="btn btn-start" id="btn-start">START SELECTED</button>
+              <button class="btn btn-stop" id="btn-stop">STOP</button>
+              <button class="btn btn-estop" id="btn-estop-on">ESTOP ON</button>
+              <button class="btn btn-start" id="btn-estop-clear">ESTOP CLEAR</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kolom Tengah: Selected Index & S3 Bridge Debug (33%) -->
+        <div class="col-control col-mid">
+          <div class="card card-selected">
+            <div class="card-title">SELECTED INDEX / MISSION STATE</div>
+            <div class="info-box info-selected" id="info-selected">-</div>
+            <div class="divider"></div>
+            <div class="info-box info-mission-state" id="info-mission-state">
+              MISSION STATE<br>none<br>step=0 type=idle state=0<br>mission manager ready
+            </div>
+            <div class="info-box info-mission-fb" id="info-mission-fb">
+              RUN FEEDBACK<br>Result: -
+            </div>
+          </div>
+
+          <div class="card card-debug">
+            <div class="card-title">S3 BRIDGE DEBUG</div>
+            <textarea class="log-area debug-area" id="debug-box" readonly>-</textarea>
+          </div>
+        </div>
+
+        <!-- Kolom Kanan: Robot Status, Live 2D Field, Event Log (34%) -->
+        <div class="col-control col-right">
+          <div class="card card-status">
+            <div class="card-title">ROBOT STATUS</div>
+            <div class="info-box" id="info-health">HEALTH<br>mode=RUN ready=1 base=1<br>fault=0x0000 rx=1042 crc=0 cmd_age=12</div>
+            <div class="info-box" id="info-odom">ODOM x=0.00m y=0.00m yaw=0.0deg<br>v=0.00m/s wz=0.00rad/s</div>
+            <div class="info-box" id="info-base">BASE cnt=0/0 d=0/0<br>rpm10=0/0 pwm=0/0 mode=IDLE age=10</div>
+            <div class="info-box" id="info-primitive">PRIMITIVE<br>No data</div>
+
+            <!-- Mini 2D Field Visualizer -->
+            <div class="canvas-container">
+              <div class="canvas-header">
+                <span>ODOMETRY 2D POSE MAP (3.0m x 2.0m)</span>
+                <span class="canvas-coords" id="canvas-coords">X: 0.00m | Y: 0.00m</span>
+              </div>
+              <canvas id="field-canvas" width="280" height="90"></canvas>
+            </div>
+          </div>
+
+          <div class="card card-log">
+            <div class="card-title">EVENT LOG</div>
+            <textarea class="log-area" id="log-box" readonly></textarea>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- PAGE 2: INDEX (Checkpoint, Path, Target Box, Team, Weapon) -->
+      <section class="hmi-page" id="page-index">
+        
+        <!-- Kiri: CP Selector (18%) -->
+        <div class="col-index col-cp">
+          <div class="card h-full">
+            <div class="card-title">CHECKPOINT</div>
+            <div class="cp-buttons">
+              <button class="btn btn-cp" id="btn-cp1" data-cp="1">CP 1</button>
+              <button class="btn btn-cp" id="btn-cp2" data-cp="2">CP 2</button>
+            </div>
+            <div class="info-box info-flow">
+              FLOW:<br>
+              1. CP dulu.<br>
+              2. Pilih Box/Weapon.<br>
+              3. START dari awal.<br>
+              STOP tidak resume.<br>
+              RESET clear pilihan.
+            </div>
+          </div>
+        </div>
+
+        <!-- Tengah: Path di atas + Box 12 di bawah (52%) -->
+        <div class="col-index col-path-grid">
+          <!-- Path Pengambilan -->
+          <div class="card card-path">
+            <div class="card-title">PATH PENGAMBILAN - 8</div>
+            <div class="path-grid" id="path-grid">
+              <!-- Buttons 1 to 8 generated by JS -->
+            </div>
+          </div>
+
+          <!-- Target Box 12 Grid -->
+          <div class="card card-grid">
+            <div class="card-title">TARGET BOX - 12 INDEX</div>
+            <div class="box-grid" id="box-grid">
+              <!-- Buttons 1 to 12 generated by JS (4 cols x 3 rows) -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Kanan: Tim Merah/Biru & Weapon (30%) -->
+        <div class="col-index col-team-weapon">
+          <!-- Tim Aksi (Merah / Biru) -->
+          <div class="card card-team">
+            <div class="card-title">AKSI TIM</div>
+            <div class="team-buttons">
+              <button class="btn btn-team" id="btn-team-red">MERAH</button>
+              <button class="btn btn-team" id="btn-team-blue">BIRU</button>
+            </div>
+          </div>
+
+          <!-- Weapon 4 Selector -->
+          <div class="card card-weapon">
+            <div class="card-title">WEAPON - 4 INDEX</div>
+            <div class="weapon-grid" id="weapon-grid">
+              <!-- Buttons 1 to 4 generated by JS (2 cols x 2 rows) -->
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Alert / Warning Modal Toast -->
+      <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-card">
+          <div class="modal-title" id="modal-title">Peringatan</div>
+          <div class="modal-body" id="modal-body">Pesan</div>
+          <button class="btn btn-neutral modal-close" id="modal-close">OK</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Portfolio Footer -->
+  <footer class="portfolio-footer">
+    <span>KRAI 2026 Operator Dashboard • Autonomous Mobile Robot Architecture (ROS2 Humble + ESP32-S3 Micro-ROS/UART)</span>
+    <span>POLINEMA Robotics Team</span>
+  </footer>
+
+  <script src="demo.js"></script>
+</body>
+</html>
