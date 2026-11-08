@@ -1,5 +1,13 @@
 # KRAI Robot ROS2 Workspace
 
+[![Web Demo](https://img.shields.io/badge/Live%20HMI%20Demo-Online-brightgreen?style=for-the-badge&logo=google-chrome)](https://aburobonema-krai.github.io/robocon2026-R2/)
+[![ROS2](https://img.shields.io/badge/ROS2-Humble-blue?style=for-the-badge&logo=ros)](https://docs.ros.org/en/humble/)
+[![Target Display](https://img.shields.io/badge/Target%20HMI-1024x600%20IPS-orange?style=for-the-badge)](https://aburobonema-krai.github.io/robocon2026-R2/)
+
+> 🌐 **Interactive Portfolio Demo (No ROS2/Linux required):**  
+> Coba langsung antarmuka operator HMI secara online di browser:  
+> 👉 **[https://aburobonema-krai.github.io/robocon2026-R2/](https://aburobonema-krai.github.io/robocon2026-R2/)**
+
 ROS2 Humble workspace for Intel NUC integration with ESP32-S3.
 
 Current milestone: **Milestone 4 - manual velocity command**.
